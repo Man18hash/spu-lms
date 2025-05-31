@@ -1,15 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Bookkeeper Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('title', 'Bookkeeper Dashboard')</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Your custom CSS -->
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+
+    <style>
+        .logo-img {
+            height: 80px;
+            max-width: 200px;
+            width: auto;
+        }
+    </style>
 </head>
 <body>
-<nav>
-    <form action="{{ route('auth.logout') }}" method="POST">@csrf<button>Logout</button></form>
-</nav>
-<main>
-    @yield('content')
-</main>
+
+    <!-- Bookkeeper Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container d-flex align-items-center">
+            <a class="navbar-brand d-flex align-items-center" href="{{ route('bookkeeper.home') }}">
+                <img
+                    src="{{ asset('images/logo.png') }}"
+                    alt="Logo"
+                    class="logo-img"
+                    onerror="this.onerror=null;this.src='https://via.placeholder.com/150';"
+                >
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#bookkeeperNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="bookkeeperNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a
+                            class="nav-link {{ request()->routeIs('bookkeeper.payments') ? 'active' : '' }}"
+                            href="{{ route('bookkeeper.payments') }}"
+                        >Payments</a>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{{ route('auth.logout') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-secondary ms-3">Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="container py-4">
+        @yield('content')
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+    @stack('scripts')
 </body>
 </html>

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\RepaymentController;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\Admin\TransactionController;
+use App\Http\Controllers\Bookkeeper\PaymentController as BookkeeperPaymentController;
 /*
 |--------------------------------------------------------------------------
 | Public Landing Pages
@@ -67,8 +68,21 @@ Route::middleware(['auth', RoleMiddleware::class . ':client'])
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', RoleMiddleware::class . ':bookkeeper'])
-     ->get('/bookkeeper/home', fn() => view('bookkeeper.home'))
-     ->name('bookkeeper.home');
+    ->prefix('bookkeeper')
+    ->name('bookkeeper.')
+    ->group(function () {
+        Route::get('/home', fn() => view('bookkeeper.home'))->name('home');
+        Route::get('/payments', [BookkeeperPaymentController::class, 'index'])->name('payments');
+        Route::post('/application/{application}/ledger', [BookkeeperPaymentController::class, 'storeLedger'])->name('application.ledger');
+        Route::get('/ledger/{application}', [BookkeeperPaymentController::class, 'viewLedger'])->name('ledger.view');
+        
+        // Repayment routes for Bookkeeper
+        Route::get('/repayments/create/{expectedSchedule}', [BookkeeperPaymentController::class, 'createRepayment'])->name('repayments.create');
+        Route::post('/repayments', [BookkeeperPaymentController::class, 'storeRepayment'])->name('repayments.store');
+        Route::get('/repayments/{repayment}/edit', [BookkeeperPaymentController::class, 'editRepayment'])->name('repayments.edit');
+        Route::put('/repayments/{repayment}', [BookkeeperPaymentController::class, 'updateRepayment'])->name('repayments.update');
+        Route::delete('/repayments/{repayment}', [BookkeeperPaymentController::class, 'destroyRepayment'])->name('repayments.destroy');
+    });
 
 /*
 |--------------------------------------------------------------------------

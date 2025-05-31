@@ -47,11 +47,24 @@ class ApplicationController extends Controller
             'status_changed_at' => 'required|date',
         ]);
 
-        // Make sure the status_changed_at is not overridden by an accessor in the model
         $application->status = $request->status;
         $application->status_changed_at = Carbon::parse($request->status_changed_at);
         $application->employee_id = auth()->id();
         $application->save();
+
+        // ✅ Automatically mark as fully paid if all expected schedules are paid
+        if ($application->status === 'released') {
+            $allPaid = $application->expectedSchedules()->get()->every(function ($schedule) {
+                return $schedule->repayments()->exists();
+            });
+
+            if ($allPaid) {
+                $application->update([
+                    'status' => 'fully_paid',
+                    'status_changed_at' => now(),
+                ]);
+            }
+        }
 
         return back()->with('success', 'Status updated successfully!');
     }
