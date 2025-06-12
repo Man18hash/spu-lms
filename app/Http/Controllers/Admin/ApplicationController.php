@@ -52,17 +52,17 @@ class ApplicationController extends Controller
         $application->employee_id = auth()->id();
         $application->save();
 
-        // ✅ Automatically mark as fully paid if all expected schedules are paid
+        // ✅ Automatically mark as fully paid if all expected schedules are paid, but only when status is set to 'released'
         if ($application->status === 'released') {
+            // This block checks if all expected schedules have been repaid
             $allPaid = $application->expectedSchedules()->get()->every(function ($schedule) {
                 return $schedule->repayments()->exists();
             });
 
+            // If all expected schedules are paid, only then mark as fully paid
             if ($allPaid) {
-                $application->update([
-                    'status' => 'fully_paid',
-                    'status_changed_at' => now(),
-                ]);
+                // Do not automatically mark as fully paid here; 
+                // This condition is only checking the payment status
             }
         }
 

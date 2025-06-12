@@ -5,8 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ExpectedSchedule;
-use App\Models\Setup;
-use App\Models\Beneficiary;
+use App\Models\Repayment;
 use App\Models\User;
 
 class LoanApplication extends Model
@@ -22,53 +21,63 @@ class LoanApplication extends Model
         'term',
         'status',
         'status_changed_at',
+
+        // Form fields
+        'last_name',
+        'given_name',
+        'middle_name',
+        'application_date',
+        'address',
+        'civil_status',
+        'nationality',
+        'contact_numbers',
+        'department',
+        'employment_status',
+        'employment_status_other',
+        'amount_in_words',
+        'loan_type',
+        'repayment_start',
+        'repayment_mode',
+        'repayment_amount',
+        'mortgage_details',
+        'withdrawal_authorization',
+        'member_signature_file',
+        'comaker_signature_file',
+        'notary_file',
     ];
 
-    /**
-     * Cast attributes to appropriate types
-     */
     protected $casts = [
-        'status_changed_at' => 'datetime',  // ✅ fix added
-        'created_at'        => 'datetime',
-        'updated_at'        => 'datetime',
+        'status_changed_at' => 'datetime',
+        'application_date' => 'date',
+        'repayment_start' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    /**
-     * The borrowing client (a User).
-     */
     public function client()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * The assigned employee (also a User).
-     */
     public function employee()
     {
         return $this->belongsTo(User::class, 'employee_id');
     }
 
-    /**
-     * The subsidiary‐ledger entries (expected schedules).
-     */
     public function expectedSchedules()
     {
         return $this->hasMany(ExpectedSchedule::class);
     }
 
-    /**
-     * Optional: Repayments via expected schedules (if needed).
-     */
     public function repayments()
     {
         return $this->hasManyThrough(
-            \App\Models\Repayment::class,
+            Repayment::class,
             ExpectedSchedule::class,
-            'loan_application_id',  // FK on ExpectedSchedule
-            'expected_schedule_id', // FK on Repayment
-            'id',                   // PK on LoanApplication
-            'id'                    // PK on ExpectedSchedule
+            'loan_application_id',
+            'expected_schedule_id',
+            'id',
+            'id'
         );
     }
 }
